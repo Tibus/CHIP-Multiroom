@@ -17,10 +17,10 @@ if which shairport-sync >/dev/null; then
   echoGreen "shairport already installed"
 else
   echoGreen "Update CHIP"
-  sudo apt-get update
+  sudo apt-get update -y
 
   echoGreen "Install shairport-sync"
-  sudo apt-get install shairport-sync
+  sudo apt-get install shairport-sync -y
 fi
 
 echoGreen "Get current hostname"
