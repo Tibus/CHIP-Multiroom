@@ -64,7 +64,7 @@ fi
 
 chmod +x 'streamer'
 
-sudo echo -e "#!/bin/bash\nsudo ~/streamer\nexit 0">'/etc/rc.local'
+sudo echo -e "#!/bin/bash\nsudo /root/streamer\nexit 0">'/etc/rc.local'
 
 sudo axp209 --no-limit
 sudo systemctl enable no-limit
