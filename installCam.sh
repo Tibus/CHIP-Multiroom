@@ -51,9 +51,11 @@ setInConf "stream_localhost" "off"
 setInConf "webcontrol_port" "8080"
 setInConf "webcontrol_localhost" "off"
 
-sed -i.bak "/start_motion_daemon=/s/=.*/=yes/" /etc/default/motion
+echo "start_motion_daemon=yes">'/etc/default/motion'
 
 sudo /etc/init.d/motion restart
+
+sudo sync
 
 echoGreen "Finished"
 
