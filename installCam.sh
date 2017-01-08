@@ -10,50 +10,68 @@ function echoGreen {
     echo "${reset}"
 }
 
-function setInConf {
-  echo "$1 => $2"
-  sed -i.bak "/$1 / s/ .*/ $2/" /etc/motion/motion.conf
-}
+read -e -p "${green}resolution de votre caméra (width): ${reset}" -i "640" width
 
-echo "${green}resolution de votre caméra (width):${reset}"
-read width
+read -e -p "${green}resolution de votre caméra (height): ${reset}" -i "480" height
 
-echo "${green}resolution de votre caméra (height):${reset}"
-read height
+read -e -p "${green}Nombre d'image par secondes de votre caméra (1 à 100): ${reset}" -i "25" fps
 
-echo "${green}Nombre d'image par secondes de votre caméra (1 à 100):${reset}"
-read fps
+read -e -p "${green}Voulez-vous sécurisez votre caméra? (y/n): ${reset}" -i "y" answer
 
-if which motion >/dev/null; then
-  echoGreen "motion already installed"
+auth=0
+
+if echo "$answer" | grep -iq "^y" ;then
+  echo "${green}Entrez le nom d'utilisateur : ${reset}"
+  read user
+
+  echo "${green}Entrez le password : ${reset}"
+  read password
+
+  auth=1
+fi
+
+pkill -9 mjpg_streamer
+
+if which svn >/dev/null; then
+  echoGreen "mjpg_streamer already installed"
 else
   echoGreen "Update CHIP"
   sudo apt-get update -y
 
-  echoGreen "Install motion"
-  sudo apt-get install motion -y
+  echoGreen "Install mjpg_streamer"
+  sudo apt-get update
+  sudo apt-get install uvcdynctrl
+  sudo  apt-get install build-essential subversion libjpeg62-turbo-dev
+  sudo apt-get install imagemagick libv4l-0 libv4l-dev
+  mkdir mjpg-streamer
+  cd mjpg-streamer
+  svn co https://svn.code.sf.net/p/mjpg-streamer/code mjpg-streamer
+  cd mjpg-streamer/mjpg-streamer
+  wget https://dl.dropboxusercontent.com/u/48891705/chip/input_uvc_patch
+  patch -p0 < input_uvc_patch
+  make USE_LIBV4L2=true clean all
+  sudo make install
 fi
 
-sudo /etc/init.d/motion start
-sudo chmod 777 /var/lib/motion/
+cd ~
 
-setInConf "width" $width
-setInConf "height" $height
-setInConf "daemon" "on"
-setInConf "framerate" $fps
-setInConf "stream_maxrate" $fps
-setInConf "auto_brightness" "off"
-setInConf "output_pictures" "off"
-setInConf "ffmpeg_output_movies" "off"
-#setInConf "target_dir" "/var/lib/motion"
-setInConf "stream_port" "8081"
-setInConf "stream_localhost" "off"
-setInConf "webcontrol_port" "8080"
-setInConf "webcontrol_localhost" "off"
+if [ "$auth" -eq "1" ]; then
+  echo "auth"
+  echo -e "#!/bin/bash\npkill -9 mjpg_streamer\n/usr/local/bin/mjpg_streamer -i \"/usr/local/lib/input_uvc.so -n -f ${fps} -r ${width}x${height}\" -o \"/usr/local/lib/output_http.so -p 80 -w /usr/local/www  -c ${user}:${password}\" ">'streamer'
+else
+  echo "no auth"
+  echo -e "#!/bin/bash\npkill -9 mjpg_streamer\n/usr/local/bin/mjpg_streamer -i \"/usr/local/lib/input_uvc.so -n -f ${fps} -r ${width}x${height}\" -o \"/usr/local/lib/output_http.so -p 80 -w /usr/local/www\" ">'streamer'
+fi
 
-echo "start_motion_daemon=yes">'/etc/default/motion'
+chmod +x 'streamer'
+sudo cp ~/streamer /etc/init.d/streamer
+sudo chmod +x /etc/init.d/streamer
+sudo cp ~/streamer /etc/default/streamer
 
-sudo /etc/init.d/motion restart
+sudo axp209 --no-limit
+sudo systemctl enable no-limit
+
+./streamer
 
 sudo sync
 
