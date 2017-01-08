@@ -39,10 +39,9 @@ else
   sudo apt-get update -y
 
   echoGreen "Install mjpg_streamer"
-  sudo apt-get update
-  sudo apt-get install uvcdynctrl
-  sudo  apt-get install build-essential subversion libjpeg62-turbo-dev
-  sudo apt-get install imagemagick libv4l-0 libv4l-dev
+  sudo apt-get install uvcdynctrl  -y
+  sudo  apt-get install build-essential subversion libjpeg62-turbo-dev  -y
+  sudo apt-get install imagemagick libv4l-0 libv4l-dev  -y
   mkdir mjpg-streamer
   cd mjpg-streamer
   svn co https://svn.code.sf.net/p/mjpg-streamer/code mjpg-streamer
