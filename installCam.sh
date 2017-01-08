@@ -39,9 +39,9 @@ else
   sudo apt-get update -y
 
   echoGreen "Install mjpg_streamer"
-  sudo apt-get install uvcdynctrl  -y
-  sudo  apt-get install build-essential subversion libjpeg62-turbo-dev  -y
-  sudo apt-get install imagemagick libv4l-0 libv4l-dev  -y
+  sudo apt-get -y --force-yes install uvcdynctrl
+  sudo apt-get -y --force-yes install build-essential subversion libjpeg62-turbo-dev
+  sudo apt-get -y --force-yes install imagemagick libv4l-0 libv4l-dev
   mkdir mjpg-streamer
   cd mjpg-streamer
   svn co https://svn.code.sf.net/p/mjpg-streamer/code mjpg-streamer
@@ -63,15 +63,15 @@ else
 fi
 
 chmod +x 'streamer'
-sudo cp ~/streamer /etc/init.d/streamer
-sudo chmod +x /etc/init.d/streamer
-sudo cp ~/streamer /etc/default/streamer
+
+echo -e "#!/bin/bash
+sudo ~/streamer
+exit 0">'/etc/rc.local'
 
 sudo axp209 --no-limit
 sudo systemctl enable no-limit
 
 ./streamer
-
 sudo sync
 
 echoGreen "Finished"
