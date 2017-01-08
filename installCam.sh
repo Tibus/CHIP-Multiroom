@@ -57,10 +57,10 @@ cd ~
 
 if [ "$auth" -eq "1" ]; then
   echo "auth"
-  echo -e "#!/bin/bash\npkill -9 mjpg_streamer\n/usr/local/bin/mjpg_streamer -i \"/usr/local/lib/input_uvc.so -n -f ${fps} -r ${width}x${height}\" -o \"/usr/local/lib/output_http.so -p 80 -w /usr/local/www  -c ${user}:${password}\" ">'streamer'
+  echo -e "#!/bin/bash\npkill -9 mjpg_streamer\n/usr/local/bin/mjpg_streamer -i \"/usr/local/lib/input_uvc.so -n -f ${fps} -r ${width}x${height}\" -o \"/usr/local/lib/output_http.so -p 80 -w /usr/local/www  -c ${user}:${password}\" &">'streamer'
 else
   echo "no auth"
-  echo -e "#!/bin/bash\npkill -9 mjpg_streamer\n/usr/local/bin/mjpg_streamer -i \"/usr/local/lib/input_uvc.so -n -f ${fps} -r ${width}x${height}\" -o \"/usr/local/lib/output_http.so -p 80 -w /usr/local/www\" ">'streamer'
+  echo -e "#!/bin/bash\npkill -9 mjpg_streamer\n/usr/local/bin/mjpg_streamer -i \"/usr/local/lib/input_uvc.so -n -f ${fps} -r ${width}x${height}\" -o \"/usr/local/lib/output_http.so -p 80 -w /usr/local/www\" &">'streamer'
 fi
 
 chmod +x 'streamer'
